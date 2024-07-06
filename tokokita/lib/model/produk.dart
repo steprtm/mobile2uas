@@ -4,13 +4,23 @@ class Produk {
   String? namaProduk;
   int? hargaProduk;
 
-  Produk({this.id, this.hargaProduk, this.kodeProduk, this.namaProduk});
+  Produk({this.id, this.kodeProduk, this.namaProduk, this.hargaProduk});
 
-  factory Produk.fromJson(Map<String, dynamic> obj) {
+  factory Produk.fromJson(Map<String, dynamic> json) {
     return Produk(
-        id: obj['id'],
-        kodeProduk: obj['kode_produk'],
-        namaProduk: obj['nama_produk'],
-        hargaProduk: obj['harga']);
+      id: int.tryParse(json['id']),
+      kodeProduk: json['kode_produk'],
+      namaProduk: json['nama_produk'],
+      hargaProduk: int.tryParse(json['harga']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'kodeProduk': kodeProduk,
+      'namaProduk': namaProduk,
+      'hargaProduk': hargaProduk,
+    };
   }
 }

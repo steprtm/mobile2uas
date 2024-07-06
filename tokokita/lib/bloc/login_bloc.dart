@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:tokokita/helpers/api.dart';
+import 'package:http/http.dart' as http;
 import 'package:tokokita/helpers/api_url.dart';
 import 'package:tokokita/model/login.dart';
 
@@ -15,17 +15,30 @@ class LoginBloc {
     };
 
     try {
-      var response = await Api().post(apiUrl, body);
+      // Logging the request details
+      print('Request URL: $apiUrl');
+      print('Request Body: ${json.encode(body)}');
+
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        body: json.encode(body),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      // Logging the response details
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
       if (response.statusCode == 200) {
         var jsonObj = json.decode(response.body);
+        print('Parsed JSON: $jsonObj');
         return Login.fromJson(jsonObj);
       } else {
-        // Handle unexpected status codes or errors
         print('Failed to login. Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
         throw Exception('Failed to login');
       }
     } catch (e) {
-      // Handle network errors or exceptions
       print('Error during login: $e');
       throw Exception('Error during login');
     }

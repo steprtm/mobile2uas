@@ -104,6 +104,8 @@ class _ProdukFormState extends State<ProdukForm> {
       validator: (value) {
         if (value!.isEmpty) {
           return "Harga harus diisi";
+        } else if (!RegExp(r'^\d+$').hasMatch(value)) {
+          return "Harga harus berupa angka yang valid";
         }
         return null;
       },
@@ -127,58 +129,88 @@ class _ProdukFormState extends State<ProdukForm> {
   }
 
   void simpan() {
+    print('Submitting new product...');
+
     setState(() {
       _isLoading = true;
     });
 
-    Produk createProduk = Produk(id: null);
-    createProduk.kodeProduk = _kodeProdukTextboxController.text;
-    createProduk.namaProduk = _namaProdukTextboxController.text;
-    createProduk.hargaProduk = int.parse(_hargaProdukTextboxController.text);
+    try {
+      Produk createProduk = Produk(id: null);
+      createProduk.kodeProduk = _kodeProdukTextboxController.text;
+      createProduk.namaProduk = _namaProdukTextboxController.text;
+      createProduk.hargaProduk = int.parse(_hargaProdukTextboxController.text);
 
-    ProdukBloc.addProduk(produk: createProduk).then((value) {
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (BuildContext context) => const ProdukPage(),
-      ));
-    }, onError: (error) {
+      ProdukBloc.addProduk(produk: createProduk).then((value) {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (BuildContext context) => const ProdukPage(),
+        ));
+      }, onError: (error) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => const WarningDialog(
+            description: "Simpan gagal, silahkan coba lagi",
+          ),
+        );
+      }).whenComplete(() {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    } catch (e) {
+      print('Error while saving product: $e');
       showDialog(
         context: context,
         builder: (BuildContext context) => const WarningDialog(
-          description: "Simpan gagal, silahkan coba lagi",
+          description: "Harga harus berupa angka yang valid",
         ),
       );
-    }).whenComplete(() {
       setState(() {
         _isLoading = false;
       });
-    });
+    }
   }
 
   void ubah() {
+    print('Updating product...');
+
     setState(() {
       _isLoading = true;
     });
 
-    Produk updateProduk = Produk(id: widget.produk!.id);
-    updateProduk.kodeProduk = _kodeProdukTextboxController.text;
-    updateProduk.namaProduk = _namaProdukTextboxController.text;
-    updateProduk.hargaProduk = int.parse(_hargaProdukTextboxController.text);
+    try {
+      Produk updateProduk = Produk(id: widget.produk!.id);
+      updateProduk.kodeProduk = _kodeProdukTextboxController.text;
+      updateProduk.namaProduk = _namaProdukTextboxController.text;
+      updateProduk.hargaProduk = int.parse(_hargaProdukTextboxController.text);
 
-    ProdukBloc.updateProduk(produk: updateProduk).then((value) {
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (BuildContext context) => const ProdukPage(),
-      ));
-    }, onError: (error) {
+      ProdukBloc.updateProduk(produk: updateProduk).then((value) {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (BuildContext context) => const ProdukPage(),
+        ));
+      }, onError: (error) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) => const WarningDialog(
+            description: "Permintaan ubah data gagal, silahkan coba lagi",
+          ),
+        );
+      }).whenComplete(() {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    } catch (e) {
+      print('Error while updating product: $e');
       showDialog(
         context: context,
         builder: (BuildContext context) => const WarningDialog(
-          description: "Permintaan ubah data gagal, silahkan coba lagi",
+          description: "Harga harus berupa angka yang valid",
         ),
       );
-    }).whenComplete(() {
       setState(() {
         _isLoading = false;
       });
-    });
+    }
   }
 }

@@ -76,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _buttonLogin() {
     return ElevatedButton(
-      child: const Text("Login"),
+      child: _isLoading ? CircularProgressIndicator() : const Text("Login"),
       onPressed: () {
         var validate = _formKey.currentState!.validate();
         if (validate) {
@@ -91,18 +91,23 @@ class _LoginPageState extends State<LoginPage> {
     setState(() {
       _isLoading = true;
     });
+
+    print('Email: ${_emailTextboxController.text}');
+    print('Password: ${_passwordTextboxController.text}');
+
     LoginBloc.login(
       email: _emailTextboxController.text,
       password: _passwordTextboxController.text,
     ).then((value) async {
+      print('Login success: ${value.token}');
       await UserInfo().setToken(value.token.toString());
-      await UserInfo().setUserID(int.parse(value.userID.toString()));
+      await UserInfo().setUserID(value.userID!); // Assuming userID is now int
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const ProdukPage()),
       );
     }, onError: (error) {
-      print(error);
+      print('Login error: $error');
       showDialog(
         context: context,
         barrierDismissible: false,

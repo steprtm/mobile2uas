@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tokokita/model/produk.dart';
 import 'package:tokokita/ui/produk_form.dart';
+import 'package:tokokita/bloc/produk_bloc.dart';
+import 'package:tokokita/widget/warning_dialog.dart';
 
 class ProdukDetail extends StatefulWidget {
   final Produk? produk;
@@ -52,6 +54,7 @@ class _ProdukDetailState extends State<ProdukDetail> {
           OutlinedButton(
             child: const Text("EDIT"),
             onPressed: () {
+              print('Editing product: ${widget.produk!.namaProduk}');
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -80,9 +83,24 @@ class _ProdukDetailState extends State<ProdukDetail> {
           actions: [
             OutlinedButton(
               child: const Text("Ya"),
-              onPressed: () {
+              onPressed: () async {
                 Navigator.pop(context); // Close the dialog
-                // Handle delete logic here if needed
+                bool deleted =
+                    await ProdukBloc.deleteProduk(id: widget.produk!.id!);
+                if (deleted) {
+                  // Safely navigate back only if the widget's context is valid
+                  if (mounted) {
+                    // Check if the widget is still mounted
+                    Navigator.pop(context); // Navigate back
+                  }
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) => const WarningDialog(
+                      description: "Gagal menghapus produk",
+                    ),
+                  );
+                }
               },
             ),
             OutlinedButton(

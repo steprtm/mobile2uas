@@ -51,14 +51,22 @@ class _ProdukPageState extends State<ProdukPage> {
       body: FutureBuilder<List>(
         future: ProdukBloc.getProduks(),
         builder: (context, snapshot) {
-          if (snapshot.hasError) print(snapshot.error);
-          return snapshot.hasData
-              ? ListProduk(
-                  list: snapshot.data,
-                )
-              : const Center(
-                  child: CircularProgressIndicator(),
-                );
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (snapshot.hasError) {
+            print("Error: ${snapshot.error}");
+            return const Center(
+              child: Text("Error loading data"),
+            );
+          } else if (snapshot.hasData) {
+            return ListProduk(list: snapshot.data);
+          } else {
+            return const Center(
+              child: Text("No data available"),
+            );
+          }
         },
       ),
     );
@@ -90,6 +98,9 @@ class ItemProduk extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(
+        "Rendering ItemProduk for ${produk.namaProduk}"); // Logging untuk melihat produk yang di-render
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -104,7 +115,7 @@ class ItemProduk extends StatelessWidget {
       child: Card(
         child: ListTile(
           title: Text(produk.namaProduk!),
-          subtitle: Text(produk.hargaProduk.toString()),
+          subtitle: Text(produk.hargaProduk?.toString() ?? 'Unknown'),
         ),
       ),
     );
